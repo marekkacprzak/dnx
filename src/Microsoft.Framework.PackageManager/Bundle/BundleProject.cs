@@ -44,7 +44,7 @@ namespace Microsoft.Framework.PackageManager.Bundle
             root.Reports.Quiet.WriteLine("Using {0} dependency {1} for {2}", _libraryDescription.Type,
                 _libraryDescription.Identity, _libraryDescription.Framework.ToString().Yellow().Bold());
 
-            if (root.NoSource)
+            if (root.NoSource || IsWrappingAssembly())
             {
                 EmitNupkg(root);
             }
@@ -88,7 +88,6 @@ namespace Microsoft.Framework.PackageManager.Bundle
 
             var project = GetCurrentProject();
             var resolver = new DefaultPackagePathResolver(root.TargetPackagesPath);
-
             var targetNupkg = resolver.GetPackageFileName(project.Name, project.Version);
             TargetPath = resolver.GetInstallPath(project.Name, project.Version);
 
@@ -582,6 +581,22 @@ namespace Microsoft.Framework.PackageManager.Bundle
                 throw new Exception("TODO: unable to resolve project named " + _libraryDescription.Identity.Name);
             }
             return project;
+        }
+
+        private bool IsWrappingAssembly()
+        {
+            /* If this project is wrapping an assembly, the project.json has the format like:
+            {
+              "frameworks": {
+                "dnx451": {
+                  "bin": {
+                    "assembly": "relative/path/to/ClassLibrary1.dll"
+                  }
+                }
+              }
+            } */
+            var project = GetCurrentProject();
+            return project.GetTargetFrameworks().Any(f => !string.IsNullOrEmpty(f.AssemblyPath));
         }
     }
 }
