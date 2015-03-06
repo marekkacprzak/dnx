@@ -41,6 +41,11 @@ namespace Microsoft.Framework.PackageManager
                 return false;
             }
 
+            foreach (var warning in warnings)
+            {
+                _buildOptions.Reports.Information.WriteLine(string.Format("Warning: At line {0} - {1}", warning.Line, warning.Message).Yellow());
+            }
+
             var sw = Stopwatch.StartNew();
 
             var baseOutputPath = GetBuildOutputDir(_buildOptions);
