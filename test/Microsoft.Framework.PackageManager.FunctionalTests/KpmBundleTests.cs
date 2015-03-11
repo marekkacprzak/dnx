@@ -1013,6 +1013,7 @@ exec ""{2}{3}"" --appbase ""${0}"" Microsoft.Framework.ApplicationHost {4} ""$@"
   ""locked"": false,
   ""version"": 1,
   ""projectFileDependencyGroups"": {
+    ""DNX,Version=v4.5.1"": [],
     """": [
       ""HelloWorld >= 1.0.0""
     ]
@@ -1020,25 +1021,35 @@ exec ""{2}{3}"" --appbase ""${0}"" Microsoft.Framework.ApplicationHost {4} ""$@"
   ""libraries"": {
     ""HelloWorld/1.0.0"": {
       ""sha"": ""NUPKG_SHA_VALUE"",
-      ""frameworkAssemblies"": {
-        ""DNX,Version=v4.5.1"": [
-          ""mscorlib"",
-          ""System"",
-          ""System.Core"",
-          ""Microsoft.CSharp""
-        ]
+      ""frameworks"": {
+        ""DNX,Version=v4.5.1"": {
+          ""dependencies"": {},
+          ""frameworkAssemblies"": [
+            ""mscorlib"",
+            ""System"",
+            ""System.Core"",
+            ""Microsoft.CSharp""
+          ],
+          ""runtimeAssemblies"": [
+            ""lib\\dnx451\\HelloWorld.dll""
+          ],
+          ""compileAssemblies"": [
+            ""lib\\dnx451\\HelloWorld.dll""
+          ]
+        }
       },
-      ""contents"": {
-        ""HelloWorld.1.0.0.nupkg"": {},
-        ""HelloWorld.1.0.0.nupkg.sha512"": {},
-        ""HelloWorld.nuspec"": {},
-        ""app\\hello.cmd"": {},
-        ""app\\hello.sh"": {},
-        ""app\\project.json"": {},
-        ""lib\\dnx451\\HelloWorld.dll"": {},
-        ""lib\\dnx451\\HelloWorld.xml"": {},
-        ""root\\project.json"": {}
-      }
+      ""files"": [
+        ""HelloWorld.1.0.0.nupkg"",
+        ""HelloWorld.1.0.0.nupkg.sha512"",
+        ""HelloWorld.nuspec"",
+        ""app\\hello.cmd"",
+        ""app\\hello.sh"",
+        ""app\\project.json"",
+        ""lib\\dnx451\\HelloWorld.dll"",
+        ""lib\\dnx451\\HelloWorld.xml"",
+        ""root\\project.json"",
+        ""root\\project.lock.json""
+      ]
     }
   }
 }";
@@ -1099,37 +1110,46 @@ exec ""{2}{3}"" --appbase ""${0}"" Microsoft.Framework.ApplicationHost {4} ""$@"
   ""locked"": false,
   ""version"": 1,
   ""projectFileDependencyGroups"": {
+    ""DNX,Version=v4.5.1"": [],
     """": [
       ""HelloWorld >= 1.0.0""
     ]
   },
   ""libraries"": {
-    ""HelloWorld/1.0.0"": {
+    ""HelloWorld/1.0"": {
       ""sha"": ""NUPKG_SHA_VALUE"",
-      ""frameworkAssemblies"": {
-        ""DNX,Version=v4.5.1"": [
-          ""mscorlib"",
-          ""System"",
-          ""System.Core"",
-          ""Microsoft.CSharp""
-        ]
+      ""frameworks"": {
+        ""DNX,Version=v4.5.1"": {
+          ""dependencies"": {},
+          ""frameworkAssemblies"": [
+            ""mscorlib"",
+            ""System"",
+            ""System.Core"",
+            ""Microsoft.CSharp""
+          ],
+          ""runtimeAssemblies"": [
+            ""lib\\dnx451\\HelloWorld.dll""
+          ],
+          ""compileAssemblies"": [
+            ""lib\\dnx451\\HelloWorld.dll""
+          ]
+        }
       },
-      ""contents"": {
-        ""HelloWorld.1.0.0.nupkg"": {},
-        ""HelloWorld.1.0.0.nupkg.sha512"": {},
-        ""HelloWorld.nuspec"": {},
-        ""app\\hello.cmd"": {},
-        ""app\\hello.sh"": {},
-        ""app\\project.json"": {},
-        ""lib\\dnx451\\HelloWorld.dll"": {},
-        ""lib\\dnx451\\HelloWorld.xml"": {},
-        ""root\\project.json"": {},
-        ""root\\project.lock.json"": {}
-      }
+      ""files"": [
+        ""HelloWorld.1.0.0.nupkg"",
+        ""HelloWorld.1.0.0.nupkg.sha512"",
+        ""HelloWorld.nuspec"",
+        ""app\\hello.cmd"",
+        ""app\\hello.sh"",
+        ""app\\project.json"",
+        ""lib\\dnx451\\HelloWorld.dll"",
+        ""lib\\dnx451\\HelloWorld.xml"",
+        ""root\\project.json"",
+        ""root\\project.lock.json""
+      ]
     }
   }
 }";
-
             using (var runtimeHomeDir = TestUtils.GetRuntimeHomeDir(flavor, os, architecture))
             using (var tempDir = TestUtils.CreateTempDir())
             {
