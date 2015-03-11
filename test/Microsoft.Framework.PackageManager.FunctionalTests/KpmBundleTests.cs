@@ -1058,8 +1058,8 @@ exec ""{2}{3}"" --appbase ""${0}"" Microsoft.Framework.ApplicationHost {4} ""$@"
             using (var tempDir = TestUtils.CreateTempDir())
             {
                 var bundleOutputPath = Path.Combine(tempDir, "output");
-                var helloWorldAppPath = Path.Combine(tempDir, "HelloWorld");
-                TestUtils.CopyFolder(TestUtils.GetXreTestAppPath("HelloWorld"), helloWorldAppPath);
+                var helloWorldAppPath = Path.Combine(tempDir, "SimpleHelloWorld");
+                TestUtils.CopyFolder(TestUtils.GetXreTestAppPath("SimpleHelloWorld"), helloWorldAppPath);
 
                 var exitCode = KpmTestUtils.ExecKpm(
                     runtimeHomeDir,
@@ -1116,7 +1116,7 @@ exec ""{2}{3}"" --appbase ""${0}"" Microsoft.Framework.ApplicationHost {4} ""$@"
     ]
   },
   ""libraries"": {
-    ""HelloWorld/1.0"": {
+    ""HelloWorld/1.0.0"": {
       ""sha"": ""NUPKG_SHA_VALUE"",
       ""frameworks"": {
         ""DNX,Version=v4.5.1"": {
@@ -1154,8 +1154,8 @@ exec ""{2}{3}"" --appbase ""${0}"" Microsoft.Framework.ApplicationHost {4} ""$@"
             using (var tempDir = TestUtils.CreateTempDir())
             {
                 var bundleOutputPath = Path.Combine(tempDir, "output");
-                var helloWorldAppPath = Path.Combine(tempDir, "HelloWorld");
-                TestUtils.CopyFolder(TestUtils.GetXreTestAppPath("HelloWorld"), helloWorldAppPath);
+                var helloWorldAppPath = Path.Combine(tempDir, "SimpleHelloWorld");
+                TestUtils.CopyFolder(TestUtils.GetXreTestAppPath("SimpleHelloWorld"), helloWorldAppPath);
 
                 // Generate lockfile for the HelloWorld app
                 var exitCode = KpmTestUtils.ExecKpm(
@@ -1183,7 +1183,7 @@ exec ""{2}{3}"" --appbase ""${0}"" Microsoft.Framework.ApplicationHost {4} ""$@"
                     "approot", "packages", "HelloWorld", "1.0.0", "root", "project.lock.json");
                 var nupkgSha = File.ReadAllText(Path.Combine(bundleOutputPath,
                     "approot", "packages", "HelloWorld", "1.0.0","HelloWorld.1.0.0.nupkg.sha512"));
-
+                File.WriteAllText(@"C:\Users\anurse\Documents\temp.json", File.ReadAllText(outputLockFilePath));
                 Assert.Equal(expectedLockFileContents.Replace("NUPKG_SHA_VALUE", nupkgSha),
                     File.ReadAllText(outputLockFilePath));
             }
