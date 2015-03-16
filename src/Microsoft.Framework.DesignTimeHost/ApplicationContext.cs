@@ -49,6 +49,8 @@ namespace Microsoft.Framework.DesignTimeHost
         private readonly Dictionary<FrameworkName, ProjectCompilation> _compilations = new Dictionary<FrameworkName, ProjectCompilation>();
         private readonly PluginHandler _pluginHandler;
 
+        private int _requestedVersion;
+
         public ApplicationContext(IServiceProvider services,
                                   ICache cache,
                                   ICacheContextAccessor cacheContextAccessor,
@@ -63,6 +65,8 @@ namespace Microsoft.Framework.DesignTimeHost
             _pluginHandler = new PluginHandler(services, SendPluginMessage);
 
             Id = id;
+
+            _requestedVersion = 0;
         }
 
         public int Id { get; private set; }
@@ -223,12 +227,16 @@ namespace Microsoft.Framework.DesignTimeHost
 
                             var data = new InitializeMessage
                             {
+                                Version = GetValue<int>(message.Payload, "Version"),
                                 Configuration = GetValue(message.Payload, "Configuration"),
                                 ProjectFolder = GetValue(message.Payload, "ProjectFolder")
                             };
 
                             _appPath.Value = data.ProjectFolder;
                             _configuration.Value = data.Configuration ?? "Debug";
+                            _requestedVersion = data.Version;
+
+                            Logger.TraceInformation("[ApplicationContext]: DTH Version {0} is requested", data.Version);
                         }
                         else
                         {
@@ -447,7 +455,7 @@ namespace Microsoft.Framework.DesignTimeHost
                 {
                     projectCompilationChanged = UpdateProjectCompilation(project, out compilation);
 
-                    project.Diagnostics = new DiagnosticsMessage(
+                    project.Diagnostics = new DiagnosticsMessageV2(
                         compilation.Diagnostics,
                         project.Sources.Framework);
                 }
@@ -489,7 +497,7 @@ namespace Microsoft.Framework.DesignTimeHost
 
                     if (project.Diagnostics == null)
                     {
-                        project.Diagnostics = new DiagnosticsMessage(
+                        project.Diagnostics = new DiagnosticsMessageV2(
                             compilation.Diagnostics,
                             project.Sources.Framework);
                     }
@@ -582,14 +590,17 @@ namespace Microsoft.Framework.DesignTimeHost
                 _remote.ProjectInformation = _local.ProjectInformation;
             }
 
-            if (IsDifferent(_local.ProjectFormatWarnings, _remote.ProjectFormatWarnings))
+            if (_requestedVersion >= 2)
             {
-                SendProjectFormatWarnings(_local.ProjectFormatWarnings);
+                if (IsDifferent(_local.ProjectFormatWarnings, _remote.ProjectFormatWarnings))
+                {
+                    SendProjectFormatWarnings(_local.ProjectFormatWarnings);
 
-                _remote.ProjectFormatWarnings = _local.ProjectFormatWarnings;
+                    _remote.ProjectFormatWarnings = _local.ProjectFormatWarnings;
+                }
             }
 
-            var allDiagnostics = new List<DiagnosticsMessage>();
+            var allDiagnostics = new List<DiagnosticsMessageV2>();
             var unprocessedFrameworks = new HashSet<FrameworkName>(_remote.Projects.Keys);
 
             foreach (var pair in _local.Projects)
@@ -685,17 +696,7 @@ namespace Microsoft.Framework.DesignTimeHost
                 return;
             }
 
-            var message = new DiagnosticsMessage(
-                warnings: projectFormatWarnings.Select(warning => new DiagnosticsInfo
-                {
-                    Message = warning.Message,
-                    Line = warning.Line,
-                    Column = warning.Column,
-                    Path = warning.Path,
-                    FormattedMessage = warning.Message
-                }),
-                errors: null,
-                framework: null);
+            var message = new DiagnosticsMessageV2(projectFormatWarnings.Cast<ICompilationMessage>(), frameworkData: null);
 
             _initializedContext.Transmit(new Message
             {
@@ -705,7 +706,7 @@ namespace Microsoft.Framework.DesignTimeHost
             });
         }
 
-        private void SendDiagnostics(IList<DiagnosticsMessage> diagnostics)
+        private void SendDiagnostics(IList<DiagnosticsMessageV2> diagnostics)
         {
             if (diagnostics.Count == 0)
             {

@@ -8,41 +8,14 @@ using Newtonsoft.Json;
 
 namespace Microsoft.Framework.DesignTimeHost.Models.OutgoingMessages
 {
-    public class DiagnosticsMessage
+    public class DiagnosticsMessageV2
     {
-        public DiagnosticsMessage(IList<ICompilationMessage> compilationMessages, FrameworkData frameworkData)
+        public DiagnosticsMessageV2(IEnumerable<ICompilationMessage> compilationMessages, FrameworkData frameworkData)
         {
-            var errors = compilationMessages
-                .Where(msg => msg.Severity == CompilationMessageSeverity.Error)
-                .Select(msg => new DiagnosticsInfo
-                {
-                    Path = msg.SourceFilePath,
-                    Line = msg.StartLine,
-                    Column = msg.StartColumn,
-                    Message = msg.Message,
-                    FormattedMessage = msg.FormattedMessage
-                });
-
-            var warnings = compilationMessages
-                .Where(msg => msg.Severity == CompilationMessageSeverity.Warning)
-                .Select(msg => new DiagnosticsInfo
-                {
-                    Path = msg.SourceFilePath,
-                    Line = msg.StartLine,
-                    Column = msg.StartColumn,
-                    Message = msg.Message,
-                    FormattedMessage = msg.FormattedMessage
-                });
-
+            CompilationDiagnostics = compilationMessages.ToList();
+            Errors = compilationMessages.Where(msg => msg.Severity == CompilationMessageSeverity.Error);
+            Warnings = compilationMessages.Where(msg => msg.Severity == CompilationMessageSeverity.Warning);
             Framework = frameworkData;
-            CompilationDiagnostics = compilationMessages;
-        }
-
-        public DiagnosticsMessage(IEnumerable<DiagnosticsInfo> errors, IEnumerable<DiagnosticsInfo> warnings, FrameworkData framework)
-        {
-            Errors = errors ?? Enumerable.Empty<DiagnosticsInfo>();
-            Warnings = warnings ?? Enumerable.Empty<DiagnosticsInfo>();
-            Framework = framework;
         }
 
         [JsonIgnore]
@@ -50,47 +23,18 @@ namespace Microsoft.Framework.DesignTimeHost.Models.OutgoingMessages
 
         public FrameworkData Framework { get; }
 
-        public IEnumerable<DiagnosticsInfo> Errors { get; }
+        public IEnumerable<ICompilationMessage> Errors { get; }
 
-        public IEnumerable<DiagnosticsInfo> Warnings { get; }
+        public IEnumerable<ICompilationMessage> Warnings { get; }
 
         public override bool Equals(object obj)
         {
-            var other = obj as DiagnosticsMessage;
+            var other = obj as DiagnosticsMessageV2;
 
             return other != null &&
                 Enumerable.SequenceEqual(Errors, other.Errors) &&
                 Enumerable.SequenceEqual(Warnings, other.Warnings) &&
                 Framework == other.Framework;
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
-    }
-
-    public class DiagnosticsInfo
-    {
-        public string Path { get; set; }
-
-        public int Line { get; set; }
-
-        public int Column { get; set; }
-
-        public string Message { get; set; }
-
-        public string FormattedMessage { get; set; }
-
-        public override bool Equals(object obj)
-        {
-            var other = obj as DiagnosticsInfo;
-
-            return other != null &&
-                 other.Line == Line && 
-                 other.Column == Column && 
-                 other.Message == Message && 
-                 other.FormattedMessage == FormattedMessage;
         }
 
         public override int GetHashCode()

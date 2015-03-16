@@ -53,7 +53,7 @@ namespace Microsoft.Framework.Runtime
                 StartLine == other.StartLine &&
                 StartColumn == other.StartColumn &&
                 Message.Equals(other.Message, System.StringComparison.Ordinal) &&
-                Path.Equals(other.Path, System.StringComparison.OrdinalIgnoreCase);
+                SourceFilePath.Equals(other.SourceFilePath, System.StringComparison.OrdinalIgnoreCase);
         }
 
         public override int GetHashCode()
