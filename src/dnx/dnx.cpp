@@ -391,6 +391,14 @@ int wmain(int argc, wchar_t* argv[])
                 }
 
                 ::wprintf_s(L"Debugger attached.\r\n");
+
+                //remove --debug flag from arguments
+                if (argc > i + 1)
+                {
+                    memcpy(argv + i, argv + i + 1, (argc - i - 1) * sizeof(wchar_t));
+                }
+                argc -= 1;
+                argv[argc] = L"\0";
             }
         }
     }
